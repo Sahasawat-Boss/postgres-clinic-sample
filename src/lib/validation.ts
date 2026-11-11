@@ -1,0 +1,42 @@
+import { z } from "zod";
+
+const optionalText = z
+  .string()
+  .trim()
+  .transform((v) => (v === "" ? null : v))
+  .nullish();
+
+export const patientSchema = z.object({
+  hn: z.string().trim().min(1, "กรุณาระบุ HN").max(20),
+  first_name: z.string().trim().min(1, "กรุณาระบุชื่อ").max(100),
+  last_name: z.string().trim().min(1, "กรุณาระบุนามสกุล").max(100),
+  gender: z.enum(["male", "female", "other"]).nullish().or(z.literal("").transform(() => null)),
+  date_of_birth: z.coerce.date({ message: "วันเกิดไม่ถูกต้อง" }),
+  phone: optionalText,
+  email: z.email("อีเมลไม่ถูกต้อง").nullish().or(z.literal("").transform(() => null)),
+  address: optionalText,
+  blood_type: z.enum(["A", "B", "AB", "O"]).nullish().or(z.literal("").transform(() => null)),
+  allergies: optionalText,
+});
+
+export const appointmentSchema = z.object({
+  patient_id: z.coerce.number().int().positive(),
+  doctor_id: z.coerce.number().int().positive(),
+  appointment_at: z.coerce.date({ message: "วันเวลานัดไม่ถูกต้อง" }),
+  reason: optionalText,
+});
+
+export const appointmentStatusSchema = z.object({
+  status: z.enum(["scheduled", "completed", "cancelled", "no_show"]),
+});
+
+export const visitSchema = z.object({
+  patient_id: z.coerce.number().int().positive(),
+  doctor_id: z.coerce.number().int().positive(),
+  appointment_id: z.coerce.number().int().positive().nullish(),
+  visit_at: z.coerce.date().optional(),
+  symptoms: optionalText,
+  diagnosis: optionalText,
+  treatment: optionalText,
+  fee: z.coerce.number().min(0).default(0),
+});
