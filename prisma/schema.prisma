@@ -38,7 +38,7 @@ model doctors {
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
 model patients {
   id            Int            @id @default(autoincrement())
-  hn            String         @unique @db.VarChar(20)
+  hn            String         @unique @default(dbgenerated("('HN'::text || lpad((nextval('hn_seq'::regclass))::text, 6, '0'::text))")) @db.VarChar(20)
   first_name    String         @db.VarChar(100)
   last_name     String         @db.VarChar(100)
   gender        String?        @db.VarChar(10)

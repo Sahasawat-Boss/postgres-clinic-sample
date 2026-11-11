@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { AlertTriangle, ChevronRight, Phone, Search, UserPlus, Users } from "lucide-react";
+import { AlertTriangle, ChevronRight, Download, Phone, Search, UserPlus, Users } from "lucide-react";
 import { api, calcAge, genderLabel, type Patient } from "@/lib/types";
 import { Avatar, EmptyState, ErrorBox, PageHeader, Spinner } from "@/components/ui";
 
@@ -32,9 +32,14 @@ export default function PatientsPage() {
         title="ผู้ป่วย"
         subtitle={patients ? `ทั้งหมด ${patients.length} รายการ` : " "}
         action={
-          <Link href="/patients/new" className="btn-primary">
-            <UserPlus className="size-4" /> เพิ่มผู้ป่วย
-          </Link>
+          <div className="flex gap-2">
+            <a href="/api/patients/export" className="btn-outline" download>
+              <Download className="size-4" /> Export CSV
+            </a>
+            <Link href="/patients/new" className="btn-primary">
+              <UserPlus className="size-4" /> เพิ่มผู้ป่วย
+            </Link>
+          </div>
         }
       />
 

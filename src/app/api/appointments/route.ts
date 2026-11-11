@@ -3,6 +3,7 @@ import type { NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { appointmentSchema } from "@/lib/validation";
 import { handleError } from "@/lib/api";
+import { conflictResponse, findConflict } from "@/lib/appointments";
 
 // GET /api/appointments?status=scheduled&patient_id=1
 export async function GET(req: NextRequest) {
@@ -32,6 +33,8 @@ export async function POST(req: NextRequest) {
   if (unauth) return unauth;
   try {
     const data = appointmentSchema.parse(await req.json());
+    const conflict = await findConflict(data.doctor_id, data.appointment_at);
+    if (conflict) return conflictResponse(conflict);
     const appointment = await prisma.appointments.create({ data });
     return Response.json(appointment, { status: 201 });
   } catch (err) {

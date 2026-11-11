@@ -7,7 +7,13 @@ const optionalText = z
   .nullish();
 
 export const patientSchema = z.object({
-  hn: z.string().trim().min(1, "กรุณาระบุ HN").max(20),
+  // เว้นว่างได้: ตอนสร้าง DB จะรัน HN ให้เอง (hn_seq), ตอนแก้ไขจะคงค่าเดิม
+  hn: z
+    .string()
+    .trim()
+    .max(20)
+    .optional()
+    .transform((v) => v || undefined),
   first_name: z.string().trim().min(1, "กรุณาระบุชื่อ").max(100),
   last_name: z.string().trim().min(1, "กรุณาระบุนามสกุล").max(100),
   gender: z.enum(["male", "female", "other"]).nullish().or(z.literal("").transform(() => null)),
@@ -26,9 +32,15 @@ export const appointmentSchema = z.object({
   reason: optionalText,
 });
 
-export const appointmentStatusSchema = z.object({
-  status: z.enum(["scheduled", "completed", "cancelled", "no_show"]),
-});
+// PATCH นัด: เปลี่ยนสถานะ และ/หรือ เลื่อนนัด (ต้องส่งอย่างน้อย 1 อย่าง)
+export const appointmentUpdateSchema = z
+  .object({
+    status: z.enum(["scheduled", "completed", "cancelled", "no_show"]).optional(),
+    appointment_at: z.coerce.date({ message: "วันเวลานัดไม่ถูกต้อง" }).optional(),
+    doctor_id: z.coerce.number().int().positive().optional(),
+    reason: optionalText,
+  })
+  .refine((d) => Object.values(d).some((v) => v !== undefined), { message: "ไม่มีข้อมูลที่จะแก้ไข" });
 
 export const visitSchema = z.object({
   patient_id: z.coerce.number().int().positive(),

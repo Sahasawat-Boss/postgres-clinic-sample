@@ -1,24 +1,42 @@
 "use client";
 
-import { Suspense, useState } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { CalendarCheck, HeartPulse, Lock, Mail, ShieldCheck, Stethoscope } from "lucide-react";
 import { api } from "@/lib/types";
+
+const REMEMBER_KEY = "clinic_remember_email";
 
 function LoginForm() {
   const params = useSearchParams();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const emailRef = useRef<HTMLInputElement>(null);
+  const passwordRef = useRef<HTMLInputElement>(null);
+  const [remember, setRemember] = useState(false);
+
+  // เติมอีเมลที่จำไว้ (เก็บเฉพาะอีเมล ไม่เก็บรหัสผ่าน)
+  useEffect(() => {
+    const saved = localStorage.getItem(REMEMBER_KEY);
+    if (saved && emailRef.current) {
+      emailRef.current.value = saved;
+      setRemember(true);
+      passwordRef.current?.focus();
+    }
+  }, []);
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setLoading(true);
     setError(null);
+    const form = Object.fromEntries(new FormData(e.currentTarget));
     try {
       await api("/api/auth/login", {
         method: "POST",
-        body: JSON.stringify(Object.fromEntries(new FormData(e.currentTarget))),
+        body: JSON.stringify({ ...form, remember }),
       });
+      if (remember) localStorage.setItem(REMEMBER_KEY, String(form.email));
+      else localStorage.removeItem(REMEMBER_KEY);
       // กันการ redirect ไปเว็บอื่น: รับเฉพาะ path ภายใน
       const next = params.get("next");
       window.location.href = next && next.startsWith("/") && !next.startsWith("//") ? next : "/dashboard";
@@ -37,6 +55,7 @@ function LoginForm() {
         <div className="relative">
           <Mail className="pointer-events-none absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-slate-400" />
           <input
+            ref={emailRef}
             id="email"
             name="email"
             type="email"
@@ -55,6 +74,7 @@ function LoginForm() {
         <div className="relative">
           <Lock className="pointer-events-none absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-slate-400" />
           <input
+            ref={passwordRef}
             id="password"
             name="password"
             type="password"
@@ -65,6 +85,16 @@ function LoginForm() {
           />
         </div>
       </div>
+
+      <label className="flex cursor-pointer select-none items-center gap-2.5 text-sm text-slate-600">
+        <input
+          type="checkbox"
+          checked={remember}
+          onChange={(e) => setRemember(e.target.checked)}
+          className="size-4 cursor-pointer rounded border-slate-300 accent-brand-600"
+        />
+        จดจำฉันไว้ <span className="text-slate-400">(ไม่ต้อง login ใหม่ 30 วัน)</span>
+      </label>
 
       {error && (
         <p className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>

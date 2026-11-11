@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-import { CalendarDays, HeartPulse, LayoutDashboard, LogOut, Menu, Users, X } from "lucide-react";
+import { CalendarDays, HeartPulse, LayoutDashboard, LogOut, Menu, Settings, Users, X } from "lucide-react";
 import { api } from "@/lib/types";
 import type { SessionUser } from "@/lib/session";
 import { Avatar } from "@/components/ui";
@@ -12,6 +12,7 @@ const nav = [
   { href: "/dashboard", label: "แดชบอร์ด", icon: LayoutDashboard },
   { href: "/patients", label: "ผู้ป่วย", icon: Users },
   { href: "/appointments", label: "นัดหมาย", icon: CalendarDays },
+  { href: "/settings", label: "ตั้งค่า", icon: Settings },
 ];
 
 export default function Sidebar() {
@@ -93,7 +94,7 @@ export default function Sidebar() {
       {/* mobile drawer */}
       {open && (
         <div className="fixed inset-0 z-40 lg:hidden">
-          <div className="absolute inset-0 bg-slate-900/40" onClick={() => setOpen(false)} />
+          <div className="absolute inset-0 bg-black/50" onClick={() => setOpen(false)} />
           <aside className="absolute inset-y-0 left-0 w-72 bg-white shadow-xl">
             <button onClick={() => setOpen(false)} className="btn-ghost absolute right-3 top-5 p-2!" aria-label="ปิดเมนู">
               <X className="size-5" />

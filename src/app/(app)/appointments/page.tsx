@@ -3,7 +3,8 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { CalendarDays } from "lucide-react";
-import { api, fmtDateTime, statusLabel, type AppointmentStatus } from "@/lib/types";
+import { api, fmtDateTime, statusLabel, type AppointmentStatus, type Doctor } from "@/lib/types";
+import RescheduleForm from "@/components/RescheduleForm";
 import { Avatar, EmptyState, ErrorBox, PageHeader, Spinner, StatusBadge } from "@/components/ui";
 
 type Row = {
@@ -11,6 +12,7 @@ type Row = {
   appointment_at: string;
   status: AppointmentStatus;
   reason: string | null;
+  doctor_id: number;
   patients: { id: number; hn: string; first_name: string; last_name: string; phone: string | null };
   doctors: { first_name: string; last_name: string; specialty: string | null };
 };
@@ -21,12 +23,19 @@ export default function AppointmentsPage() {
   const [status, setStatus] = useState<"" | AppointmentStatus>("scheduled");
   const [rows, setRows] = useState<Row[] | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [doctors, setDoctors] = useState<Doctor[]>([]);
+  const [rescheduling, setRescheduling] = useState<number | null>(null);
+  const [reloadKey, setReloadKey] = useState(0);
+
+  useEffect(() => {
+    api<Doctor[]>("/api/doctors").then(setDoctors).catch(() => {});
+  }, []);
 
   useEffect(() => {
     api<Row[]>(`/api/appointments${status ? `?status=${status}` : ""}`)
       .then(setRows)
       .catch((e: Error) => setError(e.message));
-  }, [status]);
+  }, [status, reloadKey]);
 
   async function setApptStatus(id: number, s: AppointmentStatus) {
     try {
@@ -87,6 +96,9 @@ export default function AppointmentsPage() {
                 <StatusBadge status={a.status} />
                 {a.status === "scheduled" && (
                   <div className="flex gap-1.5">
+                    <button onClick={() => setRescheduling(a.id)} className="btn-outline btn-sm">
+                      เลื่อน
+                    </button>
                     <button onClick={() => setApptStatus(a.id, "no_show")} className="btn-outline btn-sm">
                       ไม่มา
                     </button>
@@ -94,6 +106,17 @@ export default function AppointmentsPage() {
                       ยกเลิก
                     </button>
                   </div>
+                )}
+                {rescheduling === a.id && (
+                  <RescheduleForm
+                    appointment={a}
+                    doctors={doctors}
+                    onCancel={() => setRescheduling(null)}
+                    onDone={() => {
+                      setRescheduling(null);
+                      setReloadKey((k) => k + 1);
+                    }}
+                  />
                 )}
               </li>
             ))}

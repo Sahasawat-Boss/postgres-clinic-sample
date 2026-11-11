@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { IBM_Plex_Sans_Thai } from "next/font/google";
 import "./globals.css";
+import { themeScript } from "@/lib/theme";
 
 const font = IBM_Plex_Sans_Thai({
   subsets: ["thai", "latin"],
@@ -15,7 +16,10 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="th" className={`${font.variable} h-full antialiased`}>
+    <html lang="th" className={`${font.variable} h-full antialiased`} suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
+      </head>
       <body className="min-h-full bg-slate-50 text-slate-800">{children}</body>
     </html>
   );

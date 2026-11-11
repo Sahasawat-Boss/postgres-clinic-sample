@@ -49,8 +49,12 @@ export default function PatientForm({ patient }: Props) {
     <form onSubmit={onSubmit} className="space-y-6">
       <Section icon={User} title="ข้อมูลทั่วไป">
         <div>
-          <label className="label">HN *</label>
-          <input name="hn" required className="input font-mono" defaultValue={patient?.hn} placeholder="HN000007" />
+          <label className="label">HN</label>
+          {isEdit ? (
+            <input name="hn" required className="input font-mono" defaultValue={patient.hn} />
+          ) : (
+            <input disabled className="input font-mono bg-slate-50 text-slate-400" value="ระบบจะออกเลขให้อัตโนมัติ" />
+          )}
         </div>
         <div>
           <label className="label">วันเกิด *</label>

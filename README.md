@@ -20,6 +20,7 @@ psql -U postgres -p 5433 -c "CREATE DATABASE clinic;"
 psql -U postgres -p 5433 -d clinic -f db/01_patients.sql
 psql -U postgres -p 5433 -d clinic -f db/02_doctors_appointments_visits.sql
 psql -U postgres -p 5433 -d clinic -f db/03_users.sql
+psql -U postgres -p 5433 -d clinic -f db/04_hn_sequence.sql
 ```
 
 ### Login
@@ -44,14 +45,14 @@ psql -U postgres -p 5433 -d clinic -f db/03_users.sql
 | GET | `/api/auth/me` | ผู้ใช้ปัจจุบัน |
 | GET | `/api/dashboard` | ตัวเลขสรุป + นัดที่กำลังจะถึง + การรักษาล่าสุด |
 | GET | `/api/patients?q=` | รายชื่อ/ค้นหาผู้ป่วย (HN, ชื่อ, นามสกุล, เบอร์) |
-| POST | `/api/patients` | เพิ่มผู้ป่วย |
+| POST | `/api/patients` | เพิ่มผู้ป่วย (ไม่ส่ง `hn` = ออกเลขอัตโนมัติ) |
 | GET | `/api/patients/:id` | รายละเอียด + นัดหมาย + ประวัติการรักษา |
 | PUT | `/api/patients/:id` | แก้ไขผู้ป่วย |
 | DELETE | `/api/patients/:id` | ลบผู้ป่วย (ลบนัด/ประวัติตาม) |
 | GET | `/api/doctors` | รายชื่อแพทย์ |
 | GET | `/api/appointments?status=&patient_id=` | รายการนัด |
-| POST | `/api/appointments` | สร้างนัด |
-| PATCH | `/api/appointments/:id` | เปลี่ยนสถานะนัด `{ status }` |
+| POST | `/api/appointments` | สร้างนัด (กันนัดชน: แพทย์คนเดียวกันต้องห่างกัน ≥ 30 นาที → 409) |
+| PATCH | `/api/appointments/:id` | เปลี่ยนสถานะ / เลื่อนนัด `{ status?, appointment_at?, doctor_id?, reason? }` |
 | POST | `/api/visits` | บันทึกการรักษา (ถ้าระบุ `appointment_id` นัดจะเป็น completed) |
 
 Error ตอบเป็น `{ error, details? }` พร้อม status 400 / 404 / 409 / 500

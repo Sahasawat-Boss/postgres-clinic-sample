@@ -10,6 +10,53 @@
   --color-brand-900: #134e4a;
 }
 
+/* Dark mode: ใช้ class "dark" บน <html> (ตั้งโดย themeScript ใน src/lib/theme.ts) */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* แทนที่จะใส่ dark: ทุก className — สลับค่าสีของ palette ทั้งชุดตอน .dark
+   slate กลับด้าน (900 <-> 50), white กลายเป็นพื้นการ์ดสีเข้ม, สีอ่อน (50-200) กลายเป็นสีโปร่ง */
+.dark {
+  color-scheme: dark;
+  --color-slate-50: --theme(--color-slate-950 inline);
+  --color-slate-100: --theme(--color-slate-800 inline);
+  --color-slate-200: --theme(--color-slate-800 inline);
+  --color-slate-300: --theme(--color-slate-700 inline);
+  --color-slate-400: --theme(--color-slate-500 inline);
+  --color-slate-500: --theme(--color-slate-400 inline);
+  --color-slate-600: --theme(--color-slate-300 inline);
+  --color-slate-700: --theme(--color-slate-200 inline);
+  --color-slate-800: --theme(--color-slate-100 inline);
+  --color-slate-900: --theme(--color-slate-50 inline);
+  --color-white: --theme(--color-slate-900 inline);
+  --color-red-50: color-mix(in oklab, --theme(--color-red-500 inline) 15%, transparent);
+  --color-red-100: color-mix(in oklab, --theme(--color-red-500 inline) 25%, transparent);
+  --color-red-200: color-mix(in oklab, --theme(--color-red-500 inline) 35%, transparent);
+  --color-red-700: --theme(--color-red-300 inline);
+  --color-red-800: --theme(--color-red-200 inline);
+  --color-sky-50: color-mix(in oklab, --theme(--color-sky-500 inline) 15%, transparent);
+  --color-sky-100: color-mix(in oklab, --theme(--color-sky-500 inline) 25%, transparent);
+  --color-sky-200: color-mix(in oklab, --theme(--color-sky-500 inline) 35%, transparent);
+  --color-sky-700: --theme(--color-sky-300 inline);
+  --color-sky-800: --theme(--color-sky-200 inline);
+  --color-emerald-50: color-mix(in oklab, --theme(--color-emerald-500 inline) 15%, transparent);
+  --color-emerald-100: color-mix(in oklab, --theme(--color-emerald-500 inline) 25%, transparent);
+  --color-emerald-200: color-mix(in oklab, --theme(--color-emerald-500 inline) 35%, transparent);
+  --color-emerald-700: --theme(--color-emerald-300 inline);
+  --color-emerald-800: --theme(--color-emerald-200 inline);
+  --color-amber-50: color-mix(in oklab, --theme(--color-amber-500 inline) 15%, transparent);
+  --color-amber-100: color-mix(in oklab, --theme(--color-amber-500 inline) 25%, transparent);
+  --color-amber-200: color-mix(in oklab, --theme(--color-amber-500 inline) 35%, transparent);
+  --color-amber-700: --theme(--color-amber-300 inline);
+  --color-amber-800: --theme(--color-amber-200 inline);
+  --color-brand-50: color-mix(in oklab, #14b8a6 15%, transparent);
+  --color-brand-100: color-mix(in oklab, #14b8a6 25%, transparent);
+  --color-brand-700: #5eead4;
+}
+/* text-white บนปุ่มสี brand ต้องยังเป็นสีขาวจริง */
+.dark .text-white {
+  color: #fff;
+}
+
 @layer components {
   .input {
     @apply w-full rounded-lg border border-slate-200 bg-white px-3.5 py-2.5 text-sm shadow-xs outline-none transition placeholder:text-slate-400 focus:border-brand-500 focus:ring-4 focus:ring-brand-100;

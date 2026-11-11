@@ -4,8 +4,9 @@ import { Prisma } from "@/generated/prisma/client";
 /** แปลง error เป็น JSON response มาตรฐาน { error, details? } */
 export function handleError(err: unknown) {
   if (err instanceof z.ZodError) {
+    const { formErrors, fieldErrors } = z.flattenError(err);
     return Response.json(
-      { error: "ข้อมูลไม่ถูกต้อง", details: z.flattenError(err).fieldErrors },
+      { error: formErrors[0] ?? "ข้อมูลไม่ถูกต้อง", details: fieldErrors },
       { status: 400 },
     );
   }

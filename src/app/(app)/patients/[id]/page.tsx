@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import { api, calcAge, fmtDate, fmtDateTime, genderLabel, type Doctor, type PatientDetail } from "@/lib/types";
 import { Avatar, EmptyState, ErrorBox, Spinner, StatusBadge } from "@/components/ui";
+import RescheduleForm from "@/components/RescheduleForm";
 
 /** แปลงค่า datetime-local (เวลาเครื่อง) เป็น ISO ก่อนส่ง API */
 const toIso = (v: FormDataEntryValue | null) => (v ? new Date(String(v)).toISOString() : undefined);
@@ -46,6 +47,7 @@ export default function PatientDetailPage() {
   const [showAppt, setShowAppt] = useState(false);
   const [visitFor, setVisitFor] = useState<number | "walkin" | null>(null);
   const [busy, setBusy] = useState(false);
+  const [rescheduling, setRescheduling] = useState<number | null>(null);
 
   const load = useCallback(() => {
     api<PatientDetail>(`/api/patients/${id}`).then(setP).catch((e: Error) => setError(e.message));
@@ -251,6 +253,9 @@ export default function PatientDetailPage() {
                         <button className="btn-primary btn-sm" onClick={() => setVisitFor(a.id)}>
                           <Stethoscope className="size-3.5" /> ตรวจ
                         </button>
+                        <button className="btn-outline btn-sm" onClick={() => setRescheduling(a.id)}>
+                          เลื่อน
+                        </button>
                         <button
                           className="btn-outline btn-sm"
                           disabled={busy}
@@ -266,6 +271,17 @@ export default function PatientDetailPage() {
                           ยกเลิก
                         </button>
                       </div>
+                    )}
+                    {rescheduling === a.id && (
+                      <RescheduleForm
+                        appointment={a}
+                        doctors={doctors}
+                        onCancel={() => setRescheduling(null)}
+                        onDone={() => {
+                          setRescheduling(null);
+                          load();
+                        }}
+                      />
                     )}
                   </li>
                 ))}
